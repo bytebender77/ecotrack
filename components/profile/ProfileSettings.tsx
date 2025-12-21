@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,23 +10,49 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Leaf, Trophy, Flame, TrendingUp, User as UserIcon, Bell, Lock, Globe } from "lucide-react";
+import { Leaf, Trophy, Flame, TrendingUp, User as UserIcon, Bell, Lock, Globe, Camera, Sparkles } from "lucide-react";
 
 export default function ProfileSettings() {
     const { user } = useAuth();
     const { toast } = useToast();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [name, setName] = useState(user?.name || "");
     const [email, setEmail] = useState(user?.email || "");
+    const [avatar, setAvatar] = useState(user?.avatar || "");
     const [notifications, setNotifications] = useState(user?.notifications ?? true);
     const [publicProfile, setPublicProfile] = useState(user?.publicProfile ?? true);
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                toast({
+                    title: "File too large 📷",
+                    description: "Please choose an image under 2MB",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatar(reader.result as string);
+                toast({
+                    title: "Looking great! 🌱",
+                    description: "Don't forget to save your changes!",
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleSaveProfile = async () => {
         try {
             const res = await fetch('/api/user', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email })
+                body: JSON.stringify({ name, email, avatar })
             });
 
             if (res.ok) {
@@ -135,14 +161,45 @@ export default function ProfileSettings() {
                     <CardDescription>Update your personal details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="flex items-center gap-4">
-                        <Avatar className="h-20 w-20">
-                            <AvatarImage src={user.avatar || undefined} />
-                            <AvatarFallback className="text-2xl">{user.name?.[0] || 'U'}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <p className="text-sm text-muted-foreground">Profile Picture</p>
-                            <p className="text-xs text-muted-foreground mt-1">JPG, PNG or SVG. Max 2MB</p>
+                    <div className="flex items-center gap-6">
+                        <div className="relative group">
+                            <Avatar className="h-24 w-24 ring-4 ring-emerald-100 dark:ring-emerald-900">
+                                <AvatarImage src={avatar || user.avatar || undefined} />
+                                <AvatarFallback className="text-3xl bg-gradient-to-br from-emerald-400 to-green-500 text-white">
+                                    {user.name?.[0] || 'U'}
+                                </AvatarFallback>
+                            </Avatar>
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            >
+                                <Camera className="h-6 w-6 text-white" />
+                            </button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleAvatarChange}
+                                className="hidden"
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                                <Sparkles className="h-4 w-4 text-yellow-500" />
+                                <p className="font-medium text-emerald-700 dark:text-emerald-400">Profile Picture</p>
+                            </div>
+                            <p className="text-sm text-muted-foreground italic">
+                                🌿 Add a pic of you with a plant — it’s giving eco-warrior vibes! 🌱
+                            </p>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="mt-2"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <Camera className="h-4 w-4 mr-2" />
+                                Upload Photo
+                            </Button>
                         </div>
                     </div>
 
