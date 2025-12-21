@@ -6,6 +6,7 @@ import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import QuickActions from "@/components/dashboard/QuickActions";
 import ImpactSummary from "@/components/dashboard/ImpactSummary";
 import LevelDisplay from "@/components/dashboard/LevelDisplay";
+import DailyQuests from "@/components/dashboard/DailyQuests";
 import { Button } from "@/components/ui/button";
 import { CalendarDateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { useAuth } from "@/context/AuthContext";
@@ -42,8 +43,9 @@ export default function DashboardPage() {
                 {/* Charts Section */}
                 <EmissionChart />
 
-                {/* Right Sidebar: Quick Actions & Feed */}
+                {/* Right Sidebar: Quick Actions, Quests & Feed */}
                 <div className="col-span-1 lg:col-span-3 space-y-4">
+                    <DailyQuests />
                     <QuickActions />
                     <ActivityFeed />
                 </div>
