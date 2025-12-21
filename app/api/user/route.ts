@@ -12,21 +12,6 @@ export async function GET(req: NextRequest) {
     try {
         const user = await db.user.findUnique({
             where: { id: session.id as string },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                avatar: true,
-                city: true,
-                country: true,
-                ecoScore: true,
-                totalSaved: true,
-                carbonEmitted: true,
-                carbonAvoided: true,
-                streakCurrent: true,
-                streakLongest: true,
-                createdAt: true,
-            }
         });
 
         if (!user) {
