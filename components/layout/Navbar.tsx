@@ -4,6 +4,7 @@ import Link from "next/link";
 import { UserCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import MobileNav from "@/components/layout/MobileNav";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Navbar() {
     const { user } = useAuth();
@@ -18,11 +19,19 @@ export default function Navbar() {
             </div>
             <div className="flex items-center gap-4">
                 {user && (
-                    <Link href="/profile" className="flex items-center gap-2">
-                        <span className="text-sm font-medium hidden md:block">{user.name}</span>
-                        <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold">
-                            {user.avatar ? <img src={user.avatar} className="rounded-full" alt="User" /> : <UserCircle className="h-5 w-5" />}
-                        </div>
+                    <Link
+                        href="/profile"
+                        className="flex items-center gap-3 hover:opacity-80 transition-opacity group"
+                    >
+                        <span className="text-sm font-medium hidden md:block text-gray-700 dark:text-gray-300 group-hover:text-emerald-600">
+                            {user.name}
+                        </span>
+                        <Avatar className="h-9 w-9 ring-2 ring-emerald-100 dark:ring-emerald-900 group-hover:ring-emerald-400 transition-all">
+                            <AvatarImage src={user.avatar || undefined} />
+                            <AvatarFallback className="bg-gradient-to-br from-emerald-400 to-green-500 text-white font-bold">
+                                {user.name?.[0]?.toUpperCase() || 'U'}
+                            </AvatarFallback>
+                        </Avatar>
                     </Link>
                 )}
             </div>
