@@ -51,11 +51,26 @@ export default function ProfileSettings() {
     };
 
     const handleSaveProfile = async () => {
+        // Only include fields that have actual values to prevent clearing
+        const updateData: Record<string, string> = {};
+        if (name && name.trim()) updateData.name = name.trim();
+        if (email && email.trim()) updateData.email = email.trim();
+        if (avatar) updateData.avatar = avatar;
+
+        if (Object.keys(updateData).length === 0) {
+            toast({
+                title: "No Changes",
+                description: "Please enter some data to update.",
+                variant: "destructive"
+            });
+            return;
+        }
+
         try {
             const res = await fetch('/api/user', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, avatar })
+                body: JSON.stringify(updateData)
             });
 
             if (res.ok) {
@@ -63,6 +78,7 @@ export default function ProfileSettings() {
                     title: "Profile Updated! ✅",
                     description: "Your profile information has been saved.",
                 });
+                if (refreshUser) refreshUser();
             } else {
                 throw new Error('Failed to update profile');
             }
