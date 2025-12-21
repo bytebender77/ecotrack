@@ -60,7 +60,13 @@ export async function POST(req: NextRequest) {
 
         const newLongest = Math.max(newStreak, user.streakLongest || 0);
 
-        // Create Activity
+        // Calculate dynamic points based on environmental impact
+        // Simple Formula: 1 kg CO₂e = 2 EcoPoints
+        // Emissions (positive carbon) → negative points
+        // Avoidance (negative carbon) → positive points
+        const calculatedPoints = Math.round(parseFloat(carbonImpact) * 2);
+
+        // Create Activity with calculated points
         const activity = await db.activity.create({
             data: {
                 userId: session.id as string,
@@ -68,7 +74,7 @@ export async function POST(req: NextRequest) {
                 action,
                 description: description || '',
                 carbonImpact: parseFloat(carbonImpact),
-                points: points || 10,
+                points: calculatedPoints,  // Use calculated points instead of fallback
                 date: new Date(),
             }
         });
@@ -90,19 +96,13 @@ export async function POST(req: NextRequest) {
             (type === 'energy' && (action.includes('solar') || action.includes('wind') || action.includes('renewable')))
         );
 
-        // Calculate dynamic points based on environmental impact
-        // Simple Formula: 1 kg CO₂e = 2 EcoPoints
-        // Emissions (positive carbon) → negative points
-        // Avoidance (negative carbon) → positive points
-        const calculatedPoints = Math.round(parseFloat(carbonImpact) * 2);
-
         await db.user.update({
             where: { id: session.id as string },
             data: {
                 totalSaved: { increment: parseFloat(carbonImpact) },
                 carbonEmitted: isEmission ? { increment: absImpact } : undefined,
                 carbonAvoided: isAvoided ? { increment: absImpact } : undefined,
-                ecoScore: { increment: calculatedPoints },  // Use dynamic points
+                ecoScore: { increment: calculatedPoints },  // Use same calculated points
                 streakCurrent: newStreak,
                 streakLongest: newLongest,
                 lastActivity: new Date(),
