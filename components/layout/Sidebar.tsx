@@ -16,6 +16,7 @@ import {
     Target,
     BarChart3,
     BookOpen,
+    Users,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -26,6 +27,7 @@ const sidebarItems = [
     { icon: BookOpen, label: "How Points Work", href: "/points-guide" },
     { icon: ListTodo, label: "Activities", href: "/activities" },
     { icon: Trophy, label: "Leaderboard", href: "/leaderboard" },
+    { icon: Users, label: "Community", href: "/community" },
     { icon: Target, label: "Challenges", href: "/challenges" },
     { icon: MapIcon, label: "Map", href: "/map" },
     { icon: Leaf, label: "Alternatives", href: "/alternatives" },
