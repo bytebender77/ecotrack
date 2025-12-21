@@ -53,7 +53,7 @@ export async function GET() {
         };
 
         // Process each activity
-        user.activities.forEach((activity) => {
+        user.activities.forEach((activity: any) => {
             const category = activity.type;
             const carbon = activity.carbonImpact;
             const points = Math.round(carbon * 2); // 1 kg = 2 points
@@ -72,13 +72,13 @@ export async function GET() {
 
         // Get top activities by carbon impact
         const topActivities = user.activities
-            .map(a => ({
+            .map((a: any) => ({
                 description: a.description || a.action,
                 carbon: a.carbonImpact,
                 points: Math.round(a.carbonImpact * 2),
                 date: a.date
             }))
-            .sort((a, b) => Math.abs(b.carbon) - Math.abs(a.carbon))
+            .sort((a: any, b: any) => Math.abs(b.carbon) - Math.abs(a.carbon))
             .slice(0, 5);
 
         return NextResponse.json({
