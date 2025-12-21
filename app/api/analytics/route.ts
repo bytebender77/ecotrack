@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { db } from "@/lib/db";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/auth";
 
 export async function GET() {
     try {
-        const session = await getServerSession();
+        const cookieStore = cookies();
+        const token = cookieStore.get("auth-token")?.value;
 
-        if (!session?.user?.email) {
+        if (!token) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        const session = await verifyToken(token);
+        if (!session) {
+            return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+        }
+
         const user = await db.user.findUnique({
-            where: { email: session.user.email },
+            where: { id: session.id as string },
             include: {
                 activities: true
             }
