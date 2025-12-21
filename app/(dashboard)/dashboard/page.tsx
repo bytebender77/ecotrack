@@ -4,6 +4,7 @@ import StatsCards from "@/components/dashboard/StatsCards";
 import EmissionChart from "@/components/dashboard/EmissionChart";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import QuickActions from "@/components/dashboard/QuickActions";
+import ImpactSummary from "@/components/dashboard/ImpactSummary";
 import { Button } from "@/components/ui/button";
 import { CalendarDateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { useAuth } from "@/context/AuthContext";
@@ -28,6 +29,9 @@ export default function DashboardPage() {
             {/* Stats Cards Row */}
             <StatsCards />
 
+            {/* Real-World Impact Summary */}
+            <ImpactSummary />
+
             {/* Main Content Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
 
@@ -44,3 +48,4 @@ export default function DashboardPage() {
         </div>
     );
 }
+
