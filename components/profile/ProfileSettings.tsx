@@ -10,11 +10,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Leaf, Trophy, Flame, TrendingUp, User as UserIcon, Bell, Lock, Globe, Camera, Sparkles, Share2, ExternalLink } from "lucide-react";
+import { Leaf, Trophy, Flame, TrendingUp, User as UserIcon, Bell, Lock, Globe, Camera, Sparkles, Share2, ExternalLink, AlertTriangle, RotateCcw, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfileSettings() {
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
     const { toast } = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -23,6 +23,8 @@ export default function ProfileSettings() {
     const [avatar, setAvatar] = useState(user?.avatar || "");
     const [notifications, setNotifications] = useState(user?.notifications ?? true);
     const [publicProfile, setPublicProfile] = useState(user?.publicProfile ?? true);
+    const [resetting, setResetting] = useState(false);
+    const [confirmText, setConfirmText] = useState("");
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -291,6 +293,63 @@ export default function ProfileSettings() {
                     <Button variant="outline">
                         Change Password
                     </Button>
+                </CardContent>
+            </Card>
+
+            {/* Danger Zone */}
+            <Card className="border-red-200 dark:border-red-800">
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-red-500" />
+                        <CardTitle className="text-red-600">Danger Zone</CardTitle>
+                    </div>
+                    <CardDescription>Irreversible actions that affect your account data</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="p-4 bg-red-50 dark:bg-red-950 rounded-lg border border-red-200 dark:border-red-800">
+                        <div className="flex items-start gap-3">
+                            <RotateCcw className="h-5 w-5 text-red-500 mt-0.5" />
+                            <div className="flex-1 space-y-3">
+                                <div>
+                                    <h4 className="font-semibold text-red-700 dark:text-red-400">Reset All Stats</h4>
+                                    <p className="text-sm text-red-600 dark:text-red-500">
+                                        This will permanently delete all your activities and reset your Eco Score,
+                                        carbon stats, and streak to zero. This action cannot be undone.
+                                    </p>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="confirm-reset" className="text-red-600 dark:text-red-500 text-xs">
+                                        Type <strong>RESET</strong> to confirm
+                                    </Label>
+                                    <Input
+                                        id="confirm-reset"
+                                        value={confirmText}
+                                        onChange={(e) => setConfirmText(e.target.value)}
+                                        placeholder="Type RESET to confirm"
+                                        className="border-red-200 dark:border-red-800 max-w-xs"
+                                    />
+                                </div>
+                                <Button
+                                    variant="destructive"
+                                    onClick={handleResetStats}
+                                    disabled={resetting || confirmText !== "RESET"}
+                                    className="bg-red-600 hover:bg-red-700"
+                                >
+                                    {resetting ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            Resetting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <RotateCcw className="h-4 w-4 mr-2" />
+                                            Reset All Stats
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
         </div>
