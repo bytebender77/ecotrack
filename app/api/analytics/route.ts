@@ -55,7 +55,7 @@ export async function GET() {
         // Process each activity
         user.activities.forEach((activity) => {
             const category = activity.type;
-            const carbon = parseFloat(activity.carbonImpact || '0');
+            const carbon = activity.carbonImpact;
             const points = Math.round(carbon * 2); // 1 kg = 2 points
 
             if (carbonByCategory[category] !== undefined) {
@@ -73,10 +73,10 @@ export async function GET() {
         // Get top activities by carbon impact
         const topActivities = user.activities
             .map(a => ({
-                description: a.description,
-                carbon: parseFloat(a.carbonImpact || '0'),
-                points: Math.round(parseFloat(a.carbonImpact || '0') * 2),
-                date: a.createdAt
+                description: a.description || a.action,
+                carbon: a.carbonImpact,
+                points: Math.round(a.carbonImpact * 2),
+                date: a.date
             }))
             .sort((a, b) => Math.abs(b.carbon) - Math.abs(a.carbon))
             .slice(0, 5);
@@ -89,9 +89,9 @@ export async function GET() {
             totalPoints,
             totalActivities,
             topActivities,
-            carbonEmitted: user.carbonEmitted || 0,
-            carbonAvoided: user.carbonAvoided || 0,
-            ecoScore: user.ecoScore || 0
+            carbonEmitted: user.carbonEmitted,
+            carbonAvoided: user.carbonAvoided,
+            ecoScore: user.ecoScore
         });
 
     } catch (error) {
