@@ -81,9 +81,9 @@ export default function PointsGuidePage() {
                         <div className="text-center space-y-2">
                             <p className="text-sm text-gray-600 dark:text-gray-400">Step 2: Calculate Points</p>
                             <p className="text-2xl font-bold text-blue-700 dark:text-blue-400">
-                                EcoPoints = Carbon × 2
+                                EcoPoints = -Carbon × 2
                             </p>
-                            <p className="text-xs text-gray-500">1 kg CO₂ = 2 points</p>
+                            <p className="text-xs text-gray-500">Positive carbon → Negative points | Negative carbon → Positive points</p>
                         </div>
                     </div>
 
@@ -139,7 +139,7 @@ export default function PointsGuidePage() {
                                         {activities.map((activity) => {
                                             const exampleQty = 10;
                                             const carbon = exampleQty * activity.carbonPerUnit;
-                                            const points = Math.round(carbon * 2);
+                                            const points = Math.round(-carbon * 2);
                                             const isPositive = carbon < 0;
 
                                             return (
@@ -157,9 +157,9 @@ export default function PointsGuidePage() {
                                                         {exampleQty} {activity.unit}
                                                     </td>
                                                     <td className={`text-right py-3 px-2 font-semibold ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
-                                                        {carbon.toFixed(2)} kg
+                                                        {carbon >= 0 ? '+' : ''}{carbon.toFixed(2)} kg
                                                     </td>
-                                                    <td className={`text-right py-3 px-2 font-bold ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
+                                                    <td className={`text-right py-3 px-2 font-bold ${points > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                                         {points >= 0 ? '+' : ''}{points} pts
                                                     </td>
                                                 </tr>
@@ -183,8 +183,8 @@ export default function PointsGuidePage() {
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
                             <p className="font-semibold mb-2">🚗 Car Trip (500 km)</p>
                             <div className="text-sm space-y-1 font-mono">
-                                <p>Carbon = 500 km × 0.24 = <span className="text-red-600 font-bold">120 kg CO₂</span></p>
-                                <p>Points = 120 × 2 = <span className="text-red-600 font-bold">-240 pts</span></p>
+                                <p>Carbon = 500 km × 0.24 = <span className="text-red-600 font-bold">+120 kg CO₂</span></p>
+                                <p>Points = -120 × 2 = <span className="text-red-600 font-bold">-240 pts</span></p>
                             </div>
                         </div>
 
@@ -192,7 +192,7 @@ export default function PointsGuidePage() {
                             <p className="font-semibold mb-2">🚴 Cycling to College (5 km daily × 5 days)</p>
                             <div className="text-sm space-y-1 font-mono">
                                 <p>Carbon = 25 km × (-0.24) = <span className="text-emerald-600 font-bold">-6 kg CO₂</span></p>
-                                <p>Points = -6 × 2 = <span className="text-emerald-600 font-bold">+12 pts</span></p>
+                                <p>Points = -(-6) × 2 = <span className="text-emerald-600 font-bold">+12 pts</span></p>
                             </div>
                         </div>
 
@@ -200,7 +200,7 @@ export default function PointsGuidePage() {
                             <p className="font-semibold mb-2">🌳 Plant a Tree</p>
                             <div className="text-sm space-y-1 font-mono">
                                 <p>Carbon = 1 tree × (-20) = <span className="text-emerald-600 font-bold">-20 kg CO₂/year</span></p>
-                                <p>Points = -20 × 2 = <span className="text-emerald-600 font-bold">+40 pts</span> 🎉</p>
+                                <p>Points = -(-20) × 2 = <span className="text-emerald-600 font-bold">+40 pts</span> 🎉</p>
                             </div>
                         </div>
 
@@ -208,7 +208,7 @@ export default function PointsGuidePage() {
                             <p className="font-semibold mb-2">🍽️ Vegetarian Meals (3 per week for 1 year)</p>
                             <div className="text-sm space-y-1 font-mono">
                                 <p>Carbon = 156 meals × (-2.0) = <span className="text-emerald-600 font-bold">-312 kg CO₂/year</span></p>
-                                <p>Points = -312 × 2 = <span className="text-emerald-600 font-bold">+624 pts</span> 🌱</p>
+                                <p>Points = -(-312) × 2 = <span className="text-emerald-600 font-bold">+624 pts</span> 🌱</p>
                             </div>
                         </div>
                     </div>
