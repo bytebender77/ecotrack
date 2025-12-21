@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  password       String
+  avatar         String?   @default("/images/default-avatar.png")
+  city           String?
+  country        String?
+  lat            Float?
+  lng            Float?
+  ecoScore       Int       @default(0)
+  totalSaved     Float     @default(0) // in kg CO2
+  streakCurrent  Int       @default(0)
+  streakLongest  Int       @default(0)
+  lastActivity   DateTime?
+  
+  notifications  Boolean   @default(true)
+  publicProfile  Boolean   @default(true)
+  theme          String    @default("light")
+  
+  activities     Activity[]
+  carbonEntries  CarbonEntry[]
+  badges         UserBadge[]
+  challenges     ChallengeParticipant[]
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Activity {
+  id           String   @id @default(cuid())
+  type         String   // transport, food, energy, etc.
+  action       String   // cycled_to_work, vegetarian_meal, etc.
+  description  String?
+  carbonImpact Float    // kg CO2 saved (positive) or emitted (negative)
+  points       Int      @default(0)
+  metadata     Json?    // flexible storage for distance, units, etc.
+  date         DateTime @default(now())
+  verified     Boolean  @default(false)
+  
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, date])
+}
+
+model CarbonEntry {
+  id            String   @id @default(cuid())
+  date          DateTime
+  transport     Json     // Store transport metrics
+  food          Json     // Store food metrics
+  energy        Json     // Store energy metrics
+  totalEmission Float
+  comparison    Json?    // vsAverage, vsLastWeek
+  
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model Challenge {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        String   // daily, weekly, monthly
+  category    String?  // transport, food, etc.
+  target      Json     // action, count, unit
+  reward      Int      // points
+  badgeId     String?  // optional badge reward
+  
+  startDate   DateTime?
+  endDate     DateTime?
+  isActive    Boolean  @default(true)
+  
+  participants ChallengeParticipant[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ChallengeParticipant {
+  id          String    @id @default(cuid())
+  progress    Float     @default(0)
+  completed   Boolean   @default(false)
+  joinedAt    DateTime  @default(now())
+  completedAt DateTime?
+  
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, challengeId])
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  category    String?  // beginner, intermediate, etc.
+  criteria    Json     // Logic for awarding
+  rarity      String   @default("common")
+  
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  earnedAt  DateTime @default(now())
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}

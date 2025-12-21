@@ -1,0 +1,1 @@
+// User rank badge component

@@ -1,0 +1,1 @@
+// Impact stats component

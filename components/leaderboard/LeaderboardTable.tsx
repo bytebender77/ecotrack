@@ -1,0 +1,1 @@
+// Leaderboard table component

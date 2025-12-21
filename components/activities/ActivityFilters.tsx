@@ -1,0 +1,1 @@
+// Activity filters component

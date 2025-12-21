@@ -1,0 +1,1 @@
+// Impact summary component
