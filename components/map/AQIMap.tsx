@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Card } from "@/components/ui/card";
-import { Loader2, Navigation } from "lucide-react";
+import { Loader2, Navigation, ChevronDown, ChevronUp } from "lucide-react";
 
 interface AQIPoint {
     id: number;
@@ -15,30 +15,49 @@ interface AQIPoint {
     status: string;
 }
 
+// India CPCB AQI Standards
+const AQI_LEGEND = [
+    { range: "0-50", label: "Good", color: "#22c55e", description: "Air bilkul clean, koi tension nahi." },
+    { range: "51-100", label: "Satisfactory", color: "#facc15", description: "Normal hai, bas sensitive log thoda feel kar sakte hain." },
+    { range: "101-200", label: "Moderate", color: "#f97316", description: "Breathing issue ho sakta hai for heart/lung patients." },
+    { range: "201-300", label: "Poor", color: "#ef4444", description: "Outdoor activity kam rakho, sabko discomfort ho sakta hai." },
+    { range: "301-400", label: "Very Poor", color: "#a855f7", description: "Serious respiratory issues, bahar kam hi niklo." },
+    { range: "401-500", label: "Severe", color: "#dc2626", description: "Emergency level, health pe direct impact." },
+];
+
 const getColor = (aqi: number) => {
     if (aqi <= 50) return "#22c55e"; // Green - Good
-    if (aqi <= 100) return "#eab308"; // Yellow - Moderate
-    if (aqi <= 150) return "#f97316"; // Orange - Unhealthy for Sensitive
-    if (aqi <= 200) return "#ef4444"; // Red - Unhealthy
-    if (aqi <= 300) return "#a855f7"; // Purple - Very Unhealthy
-    return "#7f1d1d"; // Maroon - Hazardous
+    if (aqi <= 100) return "#facc15"; // Yellow - Satisfactory
+    if (aqi <= 200) return "#f97316"; // Orange - Moderate
+    if (aqi <= 300) return "#ef4444"; // Red - Poor
+    if (aqi <= 400) return "#a855f7"; // Purple - Very Poor
+    return "#dc2626"; // Dark Red - Severe
+};
+
+const getStatus = (aqi: number) => {
+    if (aqi <= 50) return "Good 🌿";
+    if (aqi <= 100) return "Satisfactory 👍";
+    if (aqi <= 200) return "Moderate ⚠️";
+    if (aqi <= 300) return "Poor 😷";
+    if (aqi <= 400) return "Very Poor 🚨";
+    return "Severe ☠️";
 };
 
 // Component to handle map center updates
 function ChangeView({ center }: { center: [number, number] }) {
     const map = useMap();
-    map.setView(center, 12); // Zoom level 12 for city view
+    map.setView(center, 12);
     return null;
 }
 
 export default function AQIMap() {
     const [points, setPoints] = useState<AQIPoint[]>([]);
     const [loading, setLoading] = useState(true);
-    const [center, setCenter] = useState<[number, number]>([20, 0]); // Default global
+    const [center, setCenter] = useState<[number, number]>([20, 0]);
     const [userLocation, setUserLocation] = useState<boolean>(false);
+    const [showLegend, setShowLegend] = useState(true);
 
     useEffect(() => {
-        // Try getting user location first
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
@@ -49,7 +68,7 @@ export default function AQIMap() {
                 },
                 (error) => {
                     console.error("Geolocation error:", error);
-                    fetchData(); // Fallback to global data
+                    fetchData();
                 }
             );
         } else {
@@ -94,26 +113,64 @@ export default function AQIMap() {
                         key={point.id}
                         center={[point.lat, point.lng]}
                         pathOptions={{ color: getColor(point.aqi), fillColor: getColor(point.aqi), fillOpacity: 0.7 }}
-                        radius={userLocation ? 30 : 10} // Bigger dot for user location
+                        radius={userLocation ? 30 : 10}
                     >
                         <Popup>
-                            <div className="text-center">
+                            <div className="text-center p-2">
                                 <h3 className="font-bold text-lg">{point.city}</h3>
-                                <div className="text-2xl font-bold my-2" style={{ color: getColor(point.aqi) }}>
+                                <div className="text-3xl font-bold my-2" style={{ color: getColor(point.aqi) }}>
                                     {point.aqi} AQI
                                 </div>
-                                <p className="text-sm font-medium">{point.status}</p>
+                                <p className="text-sm font-medium">{getStatus(point.aqi)}</p>
                             </div>
                         </Popup>
                     </CircleMarker>
                 ))}
             </MapContainer>
+
+            {/* Live Location Badge */}
             {userLocation && (
                 <div className="absolute top-4 right-4 bg-white/90 dark:bg-black/80 px-4 py-2 rounded-full shadow-md z-[400] flex items-center gap-2">
                     <Navigation className="h-4 w-4 text-blue-500 fill-blue-500" />
                     <span className="text-xs font-bold text-gray-700 dark:text-gray-200">Live Location Active</span>
                 </div>
             )}
+
+            {/* AQI Legend - India CPCB Standard */}
+            <div className="absolute bottom-4 left-4 z-[400] max-w-xs">
+                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <button
+                        onClick={() => setShowLegend(!showLegend)}
+                        className="w-full px-4 py-2 flex items-center justify-between bg-emerald-50 dark:bg-emerald-950 border-b border-gray-200 dark:border-gray-700"
+                    >
+                        <span className="font-bold text-sm text-gray-800 dark:text-gray-200">🇮🇳 AQI Legend (India - CPCB)</span>
+                        {showLegend ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                    </button>
+
+                    {showLegend && (
+                        <div className="p-3 space-y-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">Understanding the Index</p>
+                            {AQI_LEGEND.map((item) => (
+                                <div key={item.range} className="flex items-start gap-2">
+                                    <div
+                                        className="w-4 h-4 rounded-full flex-shrink-0 mt-0.5"
+                                        style={{ backgroundColor: item.color }}
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                                            {item.range} : {item.label}
+                                        </p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                                            {item.description}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
         </Card>
     );
 }
+
