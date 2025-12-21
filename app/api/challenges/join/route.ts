@@ -33,7 +33,9 @@ export async function POST(req: NextRequest) {
         });
 
         if (existing) {
-            return NextResponse.json({ message: 'Already joined this challenge' }, { status: 400 });
+            return NextResponse.json({
+                message: 'You have already joined this challenge! Check your progress.'
+            }, { status: 400 });
         }
 
         // Create participant entry
