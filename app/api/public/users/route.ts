@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+// Force dynamic rendering for this route (uses searchParams)
+export const dynamic = 'force-dynamic';
+
 // Public API - get all users for community page
 export async function GET(req: NextRequest) {
     try {
