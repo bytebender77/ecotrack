@@ -56,7 +56,7 @@ export async function GET() {
         user.activities.forEach((activity: any) => {
             const category = activity.type;
             const carbon = activity.carbonImpact;
-            const points = Math.round(carbon * 2); // 1 kg = 2 points
+            const points = Math.round(-carbon * 2); // Avoided carbon = positive points
 
             if (carbonByCategory[category] !== undefined) {
                 carbonByCategory[category] += carbon;
@@ -75,7 +75,7 @@ export async function GET() {
             .map((a: any) => ({
                 description: a.description || a.action,
                 carbon: a.carbonImpact,
-                points: Math.round(a.carbonImpact * 2),
+                points: Math.round(-a.carbonImpact * 2),
                 date: a.date
             }))
             .sort((a: any, b: any) => Math.abs(b.carbon) - Math.abs(a.carbon))
