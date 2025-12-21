@@ -110,6 +110,62 @@ export async function POST(req: NextRequest) {
             }
         });
 
+        // Update challenge progress for matching challenges
+        try {
+            // Find user's active challenge participations
+            const participations = await db.challengeParticipant.findMany({
+                where: {
+                    userId: session.id as string,
+                    completed: false
+                },
+                include: {
+                    challenge: true
+                }
+            });
+
+            for (const participation of participations) {
+                const challenge = participation.challenge as any;
+                const target = challenge.target as any;
+
+                // Check if this activity matches the challenge
+                const matchesCategory = challenge.category === type;
+                const matchesAction = target?.action && action.toLowerCase().includes(target.action.toLowerCase());
+
+                if (matchesCategory || matchesAction) {
+                    // Increment progress
+                    const newProgress = Math.min(100, (participation.progress || 0) + 20); // 20% per matching activity
+                    const isCompleted = newProgress >= 100;
+
+                    await db.challengeParticipant.update({
+                        where: {
+                            userId_challengeId: {
+                                userId: session.id as string,
+                                challengeId: challenge.id
+                            }
+                        },
+                        data: {
+                            progress: newProgress,
+                            completed: isCompleted,
+                            ...(isCompleted && { completedAt: new Date() })
+                        }
+                    });
+
+                    // Award bonus points if challenge completed
+                    if (isCompleted) {
+                        await db.user.update({
+                            where: { id: session.id as string },
+                            data: {
+                                ecoScore: { increment: challenge.reward || 0 }
+                            }
+                        });
+                    }
+                }
+            }
+        } catch (challengeError) {
+            console.error("Challenge progress update error:", challengeError);
+            // Don't fail the activity logging if challenge update fails
+        }
+
         return NextResponse.json(activity, { status: 201 });
     } catch (error) {
         console.error("Activity Log Error:", error);

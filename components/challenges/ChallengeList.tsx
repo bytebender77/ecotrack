@@ -24,7 +24,7 @@ export default function ChallengeList() {
     const { toast } = useToast();
     const [challenges, setChallenges] = useState<Challenge[]>([]);
     const [loading, setLoading] = useState(true);
-    const [joinedChallenges, setJoinedChallenges] = useState<Set<string>>(new Set());
+    const [participationData, setParticipationData] = useState<Record<string, { progress: number; completed: boolean }>>({});
 
     useEffect(() => {
         fetchChallenges();
@@ -38,7 +38,7 @@ export default function ChallengeList() {
             // Handle new API response structure
             if (data.challenges) {
                 setChallenges(data.challenges);
-                setJoinedChallenges(new Set(data.joinedChallengeIds || []));
+                setParticipationData(data.participationData || {});
             } else {
                 // Fallback for old response structure
                 setChallenges(data);
@@ -68,7 +68,10 @@ export default function ChallengeList() {
             });
 
             if (res.ok) {
-                setJoinedChallenges(prev => new Set(Array.from(prev).concat(challengeId)));
+                setParticipationData(prev => ({
+                    ...prev,
+                    [challengeId]: { progress: 0, completed: false }
+                }));
                 toast({
                     title: "Challenge Joined! 🎉",
                     description: "Good luck on your eco-friendly journey!",
@@ -115,8 +118,8 @@ export default function ChallengeList() {
                     key={challenge.id}
                     challenge={challenge}
                     onJoin={handleJoin}
-                    joined={joinedChallenges.has(challenge.id)}
-                    progress={joinedChallenges.has(challenge.id) ? Math.floor(Math.random() * 60) : 0}
+                    joined={!!participationData[challenge.id]}
+                    progress={participationData[challenge.id]?.progress || 0}
                 />
             ))}
         </div>
