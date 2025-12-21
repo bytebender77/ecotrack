@@ -100,9 +100,9 @@ export async function POST(req: NextRequest) {
             where: { id: session.id as string },
             data: {
                 totalSaved: { increment: parseFloat(carbonImpact) },
-                carbonEmitted: isEmission ? { increment: absImpact } : undefined,
-                carbonAvoided: isAvoided ? { increment: absImpact } : undefined,
-                ecoScore: { increment: calculatedPoints },  // Use same calculated points
+                ...(isEmission && { carbonEmitted: { increment: absImpact } }),
+                ...(isAvoided && { carbonAvoided: { increment: absImpact } }),
+                ecoScore: { increment: calculatedPoints },
                 streakCurrent: newStreak,
                 streakLongest: newLongest,
                 lastActivity: new Date(),
