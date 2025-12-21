@@ -1,4 +1,5 @@
 import ProfileSettings from "@/components/profile/ProfileSettings";
+import BadgesDisplay from "@/components/profile/BadgesDisplay";
 
 export default function ProfilePage() {
     return (
@@ -13,7 +14,12 @@ export default function ProfilePage() {
                     </p>
                 </div>
             </div>
+
+            {/* Achievement Badges */}
+            <BadgesDisplay />
+
             <ProfileSettings />
         </div>
     );
 }
+
