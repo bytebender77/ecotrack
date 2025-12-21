@@ -15,32 +15,68 @@ interface AQIPoint {
     status: string;
 }
 
-// India CPCB AQI Standards
-const AQI_LEGEND = [
-    { range: "0-50", label: "Good", color: "#22c55e", description: "Air bilkul clean, koi tension nahi." },
-    { range: "51-100", label: "Satisfactory", color: "#facc15", description: "Normal hai, bas sensitive log thoda feel kar sakte hain." },
-    { range: "101-200", label: "Moderate", color: "#f97316", description: "Breathing issue ho sakta hai for heart/lung patients." },
-    { range: "201-300", label: "Poor", color: "#ef4444", description: "Outdoor activity kam rakho, sabko discomfort ho sakta hai." },
-    { range: "301-400", label: "Very Poor", color: "#a855f7", description: "Serious respiratory issues, bahar kam hi niklo." },
-    { range: "401-500", label: "Severe", color: "#dc2626", description: "Emergency level, health pe direct impact." },
+// Accessible AQI Levels with emojis, colors, and friendly messages
+export const AQI_LEVELS = [
+    {
+        min: 0,
+        max: 50,
+        label: "Good",
+        color: "#22C55E",
+        emoji: "🌿",
+        message: "Fresh air, enjoy the outdoors!"
+    },
+    {
+        min: 51,
+        max: 100,
+        label: "Okay",
+        color: "#FACC15",
+        emoji: "🙂",
+        message: "Mostly safe, slight caution."
+    },
+    {
+        min: 101,
+        max: 200,
+        label: "Moderate",
+        color: "#FB923C",
+        emoji: "😐",
+        message: "Sensitive groups should be careful."
+    },
+    {
+        min: 201,
+        max: 300,
+        label: "Poor",
+        color: "#EF4444",
+        emoji: "😷",
+        message: "Limit outdoor activities."
+    },
+    {
+        min: 301,
+        max: 400,
+        label: "Very Poor",
+        color: "#A855F7",
+        emoji: "😖",
+        message: "Better to stay indoors."
+    },
+    {
+        min: 401,
+        max: 500,
+        label: "Severe",
+        color: "#1F2937",
+        emoji: "🚨",
+        message: "Avoid outdoor exposure."
+    }
 ];
 
-const getColor = (aqi: number) => {
-    if (aqi <= 50) return "#22c55e"; // Green - Good
-    if (aqi <= 100) return "#facc15"; // Yellow - Satisfactory
-    if (aqi <= 200) return "#f97316"; // Orange - Moderate
-    if (aqi <= 300) return "#ef4444"; // Red - Poor
-    if (aqi <= 400) return "#a855f7"; // Purple - Very Poor
-    return "#dc2626"; // Dark Red - Severe
+// Get AQI level info for a given value
+const getAQILevel = (aqi: number) => {
+    return AQI_LEVELS.find(level => aqi >= level.min && aqi <= level.max) || AQI_LEVELS[AQI_LEVELS.length - 1];
 };
 
+const getColor = (aqi: number) => getAQILevel(aqi).color;
+
 const getStatus = (aqi: number) => {
-    if (aqi <= 50) return "Good 🌿";
-    if (aqi <= 100) return "Satisfactory 👍";
-    if (aqi <= 200) return "Moderate ⚠️";
-    if (aqi <= 300) return "Poor 😷";
-    if (aqi <= 400) return "Very Poor 🚨";
-    return "Severe ☠️";
+    const level = getAQILevel(aqi);
+    return `${level.emoji} ${level.label}`;
 };
 
 // Component to handle map center updates
@@ -116,12 +152,17 @@ export default function AQIMap() {
                         radius={userLocation ? 30 : 10}
                     >
                         <Popup>
-                            <div className="text-center p-2">
+                            <div className="text-center p-2 min-w-[180px]">
                                 <h3 className="font-bold text-lg">{point.city}</h3>
                                 <div className="text-3xl font-bold my-2" style={{ color: getColor(point.aqi) }}>
-                                    {point.aqi} AQI
+                                    {getAQILevel(point.aqi).emoji} {point.aqi}
                                 </div>
-                                <p className="text-sm font-medium">{getStatus(point.aqi)}</p>
+                                <p className="text-sm font-bold mb-1" style={{ color: getColor(point.aqi) }}>
+                                    {getAQILevel(point.aqi).label} Air Quality
+                                </p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                    {getAQILevel(point.aqi).message}
+                                </p>
                             </div>
                         </Popup>
                     </CircleMarker>
@@ -150,18 +191,20 @@ export default function AQIMap() {
                     {showLegend && (
                         <div className="p-3 space-y-2">
                             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">Understanding the Index</p>
-                            {AQI_LEGEND.map((item) => (
-                                <div key={item.range} className="flex items-start gap-2">
+                            {AQI_LEVELS.map((level) => (
+                                <div key={level.label} className="flex items-start gap-2">
                                     <div
-                                        className="w-4 h-4 rounded-full flex-shrink-0 mt-0.5"
-                                        style={{ backgroundColor: item.color }}
-                                    />
+                                        className="w-4 h-4 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-[10px]"
+                                        style={{ backgroundColor: level.color }}
+                                    >
+                                        {level.emoji}
+                                    </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                                            {item.range} : {item.label}
+                                            {level.emoji} {level.min}-{level.max} : {level.label}
                                         </p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                                            {item.description}
+                                            {level.message}
                                         </p>
                                     </div>
                                 </div>
