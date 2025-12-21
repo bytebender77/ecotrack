@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { Loader2, CheckCircle } from "lucide-react";
+import { getSmartComparison } from "@/lib/smartComparisons";
 
 interface ResultDisplayProps {
     emission: number; // in kg CO2
@@ -14,8 +15,6 @@ interface ResultDisplayProps {
 export default function ResultDisplay({ emission, category, onSave }: ResultDisplayProps) {
     const [loading, setLoading] = useState(false);
     const [saved, setSaved] = useState(false);
-
-    // if (emission === 0) return null; // Removed to allow 0 emission (e.g. biking) to be logged
 
     const handleSave = async () => {
         if (!onSave) return;
@@ -30,33 +29,52 @@ export default function ResultDisplay({ emission, category, onSave }: ResultDisp
         }
     };
 
-    // Simple equivalent logic
-    const treesPlanted = (emission / 20).toFixed(1); // approx 20kg per tree/year
-    const carKm = (emission / 0.192).toFixed(1);
+    if (isNaN(emission)) return null;
 
-    // Determine color/message based on emission
-    const isZero = emission === 0;
-    const colorClass = isZero ? "text-emerald-600 dark:text-emerald-400" : "text-emerald-600 dark:text-emerald-400"; // Keep same for now or make red if high
+    // Get smart comparison based on category
+    const smartComp = getSmartComparison(emission, category);
 
-    if (isNaN(emission)) return null; // Safety check
+    // Determine if this is a positive action (negative carbon = good!)
+    const isPositive = emission < 0;
+    const absEmission = Math.abs(emission);
+
+    // Color coding: Green for positive impact, Red for emissions
+    const bgColor = isPositive
+        ? "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800"
+        : "bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800";
+
+    const textColor = isPositive
+        ? "text-emerald-900 dark:text-emerald-100"
+        : "text-red-900 dark:text-red-100";
+
+    const valueColor = isPositive
+        ? "text-emerald-600 dark:text-emerald-400"
+        : "text-red-600 dark:text-red-400";
+
+    const buttonColor = isPositive
+        ? "bg-emerald-600 hover:bg-emerald-700"
+        : "bg-red-600 hover:bg-red-700";
 
     return (
-        <Card className="mt-6 bg-emerald-50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800">
+        <Card className={`mt-6 ${bgColor}`}>
             <CardContent className="pt-6">
                 <div className="text-center">
-                    <h3 className="text-lg font-medium text-emerald-900 dark:text-emerald-100">
+                    <h3 className={`text-lg font-medium ${textColor}`}>
                         Estimated Impact
                     </h3>
                     <div className="mt-2 flex items-baseline justify-center gap-2">
-                        <span className="text-4xl font-bold text-emerald-600 dark:text-emerald-400">
-                            {emission.toFixed(2)}
+                        <span className={`text-4xl font-bold ${valueColor}`}>
+                            {/* Show 3 decimals for values < 1, otherwise 2 decimals */}
+                            {Math.abs(emission) < 1 ? emission.toFixed(3) : emission.toFixed(2)}
                         </span>
-                        <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                        <span className={`text-sm font-medium ${valueColor}`}>
                             kg CO₂
                         </span>
                     </div>
-                    <p className="mt-4 text-sm text-emerald-800 dark:text-emerald-200 mb-4">
-                        That's equivalent to driving a car for <strong>{carKm} km</strong> or the yearly absorption of <strong>{treesPlanted} trees</strong>.
+
+                    {/* Smart, context-aware comparison */}
+                    <p className={`mt-4 text-sm ${textColor} mb-4`}>
+                        {smartComp.message}
                     </p>
 
                     {onSave && (
@@ -64,7 +82,7 @@ export default function ResultDisplay({ emission, category, onSave }: ResultDisp
                             onClick={handleSave}
                             disabled={loading || saved}
                             variant={saved ? "outline" : "default"}
-                            className={saved ? "border-emerald-500 text-emerald-600" : "bg-emerald-600 hover:bg-emerald-700 text-white"}
+                            className={saved ? `border-${isPositive ? 'emerald' : 'red'}-500 text-${isPositive ? 'emerald' : 'red'}-600` : `${buttonColor} text-white`}
                         >
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {saved && <CheckCircle className="mr-2 h-4 w-4" />}

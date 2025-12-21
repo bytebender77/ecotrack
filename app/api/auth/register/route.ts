@@ -52,6 +52,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: error.errors }, { status: 400 });
         }
         console.error('Registration error:', error);
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+        console.error('Error message:', error instanceof Error ? error.message : String(error));
         return NextResponse.json(
             { message: 'Internal server error' },
             { status: 500 }

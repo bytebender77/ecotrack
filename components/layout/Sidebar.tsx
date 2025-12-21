@@ -14,12 +14,16 @@ import {
     User,
     LogOut,
     Target,
+    BarChart3,
+    BookOpen,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const sidebarItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: Calculator, label: "Calculator", href: "/calculator" },
+    { icon: BarChart3, label: "Analytics", href: "/analytics" },
+    { icon: BookOpen, label: "How Points Work", href: "/points-guide" },
     { icon: ListTodo, label: "Activities", href: "/activities" },
     { icon: Trophy, label: "Leaderboard", href: "/leaderboard" },
     { icon: Target, label: "Challenges", href: "/challenges" },

@@ -18,6 +18,48 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
         }
 
+        // Get current user data for streak calculation
+        const user = await db.user.findUnique({
+            where: { id: session.id as string },
+            select: {
+                streakCurrent: true,
+                streakLongest: true,
+                lastActivity: true,
+            }
+        });
+
+        if (!user) {
+            return NextResponse.json({ message: 'User not found' }, { status: 404 });
+        }
+
+        // Calculate streak based on consecutive days
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+        const lastActivityDate = user.lastActivity ? new Date(user.lastActivity) : null;
+        if (lastActivityDate) {
+            lastActivityDate.setHours(0, 0, 0, 0);
+        }
+
+        const daysSinceLastActivity = lastActivityDate
+            ? Math.floor((today.getTime() - lastActivityDate.getTime()) / (1000 * 60 * 60 * 24))
+            : Infinity;
+
+        let newStreak: number;
+
+        if (daysSinceLastActivity === 0) {
+            // Same day - no change to streak
+            newStreak = user.streakCurrent || 1;
+        } else if (daysSinceLastActivity === 1) {
+            // Consecutive day - increment
+            newStreak = (user.streakCurrent || 0) + 1;
+        } else {
+            // Gap in days - reset to 1
+            newStreak = 1;
+        }
+
+        const newLongest = Math.max(newStreak, user.streakLongest || 0);
+
         // Create Activity
         const activity = await db.activity.create({
             data: {
@@ -31,13 +73,39 @@ export async function POST(req: NextRequest) {
             }
         });
 
-        // Update User Stats (Atomic increment)
+        // Update User Stats with proper streak calculation
+        // Categorize as emission or avoided based on activity type
+        const absImpact = Math.abs(parseFloat(carbonImpact));
+
+        // Determine if this is an emission or avoided carbon
+        const isEmission = (
+            (type === 'transport' && !['bicycle', 'walk', 'public_transport', 'bus', 'train'].includes(action)) ||
+            (type === 'food' && (action.includes('chicken') || action.includes('beef') || action.includes('pork') || action.includes('meat'))) ||
+            (type === 'energy' && (action.includes('grid') || action.includes('gas')))
+        );
+
+        const isAvoided = (
+            (type === 'food' && (action.includes('vegetarian') || action.includes('vegan'))) ||
+            (type === 'transport' && ['bicycle', 'walk', 'public_transport', 'bus', 'train'].includes(action)) ||
+            (type === 'energy' && (action.includes('solar') || action.includes('wind') || action.includes('renewable')))
+        );
+
+        // Calculate dynamic points based on environmental impact
+        // Simple Formula: 1 kg CO₂e = 2 EcoPoints
+        // Emissions (positive carbon) → negative points
+        // Avoidance (negative carbon) → positive points
+        const calculatedPoints = Math.round(parseFloat(carbonImpact) * 2);
+
         await db.user.update({
             where: { id: session.id as string },
             data: {
                 totalSaved: { increment: parseFloat(carbonImpact) },
-                ecoScore: { increment: points || 10 },
-                streakCurrent: { increment: 1 } // Simplified streak logic for now
+                carbonEmitted: isEmission ? { increment: absImpact } : undefined,
+                carbonAvoided: isAvoided ? { increment: absImpact } : undefined,
+                ecoScore: { increment: calculatedPoints },  // Use dynamic points
+                streakCurrent: newStreak,
+                streakLongest: newLongest,
+                lastActivity: new Date(),
             }
         });
 

@@ -7,6 +7,8 @@ export interface User {
     country?: string;
     ecoScore: number;
     totalSaved: number;
+    carbonEmitted: number;
+    carbonAvoided: number;
     streakCurrent: number;
     streakLongest: number;
     lastActivity: Date | null;

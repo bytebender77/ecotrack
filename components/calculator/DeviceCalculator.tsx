@@ -6,22 +6,22 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ResultDisplay from "./ResultDisplay";
-import { getActivity } from "@/lib/activities";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getActivity } from "@/lib/activities";
 
-export default function TransportCalculator() {
-    const [mode, setMode] = useState("car");
-    const [distance, setDistance] = useState("");
+export default function DeviceCalculator() {
+    const [device, setDevice] = useState("phone_usage");
+    const [hours, setHours] = useState("");
     const [result, setResult] = useState(0);
 
     const calculate = () => {
-        const dist = parseFloat(distance);
-        if (isNaN(dist)) return;
+        const hrs = parseFloat(hours);
+        if (isNaN(hrs)) return;
 
-        const activity = getActivity(mode);
+        const activity = getActivity(device);
         if (!activity) return;
 
-        setResult(dist * activity.carbonPerUnit);
+        setResult(hrs * activity.carbonPerUnit);
     };
 
     const handleSave = async () => {
@@ -30,10 +30,10 @@ export default function TransportCalculator() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    type: 'transport',
-                    action: mode,
+                    type: 'device',
+                    action: device,
                     carbonImpact: result,
-                    description: `Traveled ${distance}km using ${mode}`
+                    description: `Used ${device.replace('_', ' ')} for ${hours} hours`
                 })
             });
 
@@ -47,42 +47,40 @@ export default function TransportCalculator() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Transport Emission</CardTitle>
-                <CardDescription>Calculate CO2 from your daily commute or trips.</CardDescription>
+                <CardTitle>Device & Energy Usage</CardTitle>
+                <CardDescription>Track emissions from your daily device usage.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label>Mode of Transport</Label>
-                        <Select onValueChange={setMode} defaultValue={mode}>
+                        <Label>Device Type</Label>
+                        <Select onValueChange={setDevice} defaultValue={device}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select mode" />
+                                <SelectValue placeholder="Select device" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="flight">✈️ Flight</SelectItem>
-                                <SelectItem value="car">🚗 Car</SelectItem>
-                                <SelectItem value="auto_rickshaw">🛺 Auto-rickshaw</SelectItem>
-                                <SelectItem value="bike_motor">🏍️ Motorcycle</SelectItem>
-                                <SelectItem value="bus">🚌 Bus</SelectItem>
-                                <SelectItem value="bicycle">🚴 Bicycle</SelectItem>
-                                <SelectItem value="walk">🚶 Walking</SelectItem>
+                                <SelectItem value="phone_usage">📱 Phone Usage</SelectItem>
+                                <SelectItem value="laptop_usage">💻 Laptop Usage</SelectItem>
+                                <SelectItem value="gaming">🎮 Gaming</SelectItem>
+                                <SelectItem value="ac_usage">❄️ Air Conditioner</SelectItem>
+                                <SelectItem value="fan_usage">🌀 Fan</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>Distance (km)</Label>
+                        <Label>Usage (hours)</Label>
                         <Input
                             type="number"
-                            placeholder="e.g. 15"
-                            value={distance}
-                            onChange={(e) => setDistance(e.target.value)}
+                            placeholder="e.g. 5"
+                            value={hours}
+                            onChange={(e) => setHours(e.target.value)}
                         />
                     </div>
                 </div>
 
                 <Button onClick={calculate} className="w-full">Calculate Impact</Button>
 
-                <ResultDisplay emission={result} category="transport" onSave={handleSave} />
+                <ResultDisplay emission={result} category="device" onSave={handleSave} />
             </CardContent>
         </Card>
     );

@@ -21,6 +21,8 @@ export async function GET(req: NextRequest) {
                 country: true,
                 ecoScore: true,
                 totalSaved: true,
+                carbonEmitted: true,
+                carbonAvoided: true,
                 streakCurrent: true,
                 streakLongest: true,
                 createdAt: true,

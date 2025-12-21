@@ -40,6 +40,13 @@ export default function ActivityFeed() {
         };
 
         fetchActivities();
+
+        // Real-time polling: refetch activities every 15 seconds
+        const interval = setInterval(() => {
+            fetchActivities();
+        }, 15000); // Poll every 15 seconds
+
+        return () => clearInterval(interval);
     }, [user]);
 
     if (loading) {

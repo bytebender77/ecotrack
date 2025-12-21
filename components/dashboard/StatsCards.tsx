@@ -4,9 +4,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Leaf, Trophy, Flame, TrendingUp } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { formatNumber } from "@/lib/utils";
+import { useEffect } from "react";
 
 export default function StatsCards() {
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
+
+    // Real-time polling: refresh user data every 10 seconds
+    useEffect(() => {
+        if (!user) return;
+
+        const interval = setInterval(() => {
+            refreshUser();
+        }, 10000); // Poll every 10 seconds
+
+        return () => clearInterval(interval);
+    }, [user, refreshUser]);
 
     if (!user) {
         return <StatsCardsSkeleton />;
@@ -14,12 +26,12 @@ export default function StatsCards() {
 
     const stats = [
         {
-            title: "Total Carbon Saved",
-            value: `${(user.totalSaved || 0).toFixed(1)} kg`,
-            description: "Lifetime savings",
+            title: "Carbon Emitted",
+            value: `${(user.carbonEmitted || 0).toFixed(1)} kg`,
+            description: "CO₂e from activities",
             icon: Leaf,
-            color: "text-emerald-500",
-            bgColor: "bg-emerald-100 dark:bg-emerald-900/20",
+            color: "text-red-500",
+            bgColor: "bg-red-100 dark:bg-red-900/20",
         },
         {
             title: "Eco Score",
@@ -38,12 +50,12 @@ export default function StatsCards() {
             bgColor: "bg-amber-100 dark:bg-amber-900/20",
         },
         {
-            title: "Last Activity",
-            value: user.lastActivity ? new Date(user.lastActivity).toLocaleDateString() : "None",
-            description: "Keep being active!",
-            icon: TrendingUp,
-            color: "text-rose-500",
-            bgColor: "bg-rose-100 dark:bg-rose-900/20",
+            title: "Carbon Avoided",
+            value: `${(user.carbonAvoided || 0).toFixed(1)} kg`,
+            description: "Eco-friendly choices",
+            icon: Leaf,
+            color: "text-emerald-500",
+            bgColor: "bg-emerald-100 dark:bg-emerald-900/20",
         },
     ];
 

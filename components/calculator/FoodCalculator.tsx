@@ -29,9 +29,8 @@ export default function FoodCalculator() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     type: 'food',
-                    action: `${meals}x ${diet} meal`,
+                    action: diet,
                     carbonImpact: result,
-                    points: 10,
                     description: `Consumed ${meals} ${diet} meal(s)`
                 })
             });

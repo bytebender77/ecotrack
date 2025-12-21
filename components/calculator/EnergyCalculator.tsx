@@ -30,9 +30,8 @@ export default function EnergyCalculator() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     type: 'energy',
-                    action: `${usage} kWh ${source}`,
+                    action: source,
                     carbonImpact: result,
-                    points: 20,
                     description: `Used ${usage} kWh of ${source}`
                 })
             });
