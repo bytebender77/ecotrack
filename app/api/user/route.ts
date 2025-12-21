@@ -48,11 +48,12 @@ export async function PUT(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { name, email, notifications, publicProfile } = body;
+        const { name, email, avatar, notifications, publicProfile } = body;
 
         const updateData: any = {};
         if (name !== undefined) updateData.name = name;
         if (email !== undefined) updateData.email = email;
+        if (avatar !== undefined) updateData.avatar = avatar;
         if (notifications !== undefined) updateData.notifications = notifications;
         if (publicProfile !== undefined) updateData.publicProfile = publicProfile;
 
