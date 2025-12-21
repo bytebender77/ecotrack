@@ -10,7 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Leaf, Trophy, Flame, TrendingUp, User as UserIcon, Bell, Lock, Globe, Camera, Sparkles } from "lucide-react";
+import { Leaf, Trophy, Flame, TrendingUp, User as UserIcon, Bell, Lock, Globe, Camera, Sparkles, Share2, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 export default function ProfileSettings() {
     const { user } = useAuth();
