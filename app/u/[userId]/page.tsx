@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -15,6 +14,7 @@ import Link from "next/link";
 import { getCurrentLevel, getNextLevel, getLevelProgress } from "@/lib/levels";
 import { getUnlockedBadges } from "@/lib/badges";
 import { formatDistanceToNow } from "date-fns";
+import AvatarWithModal from "@/components/ui/AvatarWithModal";
 
 interface UserProfile {
     id: string;
@@ -133,12 +133,12 @@ export default function PublicProfilePage() {
                     <div className="h-24 bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500"></div>
                     <CardContent className="relative pt-0 pb-6">
                         <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-12">
-                            <Avatar className="h-24 w-24 ring-4 ring-white dark:ring-gray-800 shadow-xl">
-                                <AvatarImage src={profile.avatar || undefined} />
-                                <AvatarFallback className="bg-gradient-to-br from-emerald-400 to-green-500 text-white text-2xl font-bold">
-                                    {profile.name?.[0]?.toUpperCase() || 'U'}
-                                </AvatarFallback>
-                            </Avatar>
+                            <AvatarWithModal
+                                src={profile.avatar}
+                                name={profile.name}
+                                className="h-24 w-24 ring-4 ring-white dark:ring-gray-800 shadow-xl"
+                                fallbackClassName="text-2xl"
+                            />
                             <div className="flex-1 text-center sm:text-left">
                                 <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                                     {profile.name}
