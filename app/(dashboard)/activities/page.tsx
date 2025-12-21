@@ -1,4 +1,5 @@
 import ActivityList from "@/components/activities/ActivityList";
+import StreakCalendar from "@/components/dashboard/StreakCalendar";
 
 export default function ActivitiesPage() {
     return (
@@ -13,7 +14,12 @@ export default function ActivitiesPage() {
                     </p>
                 </div>
             </div>
+
+            {/* Streak Calendar */}
+            <StreakCalendar />
+
             <ActivityList />
         </div>
     );
 }
+
