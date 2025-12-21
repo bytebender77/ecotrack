@@ -27,9 +27,11 @@ export function getImpactEquivalences(carbonKg: number): ImpactEquivalence[] {
     const trees = absCarbon / CARBON_PER_TREE_YEAR;
     if (trees >= 0.01) {
         equivalences.push({
-            icon: "🌳",
+            icon: isPositive ? "🌳" : "🪓",
             value: trees >= 1 ? trees.toFixed(1) : (trees * 12).toFixed(0),
-            label: trees >= 1 ? "trees for a year" : "tree-months",
+            label: isPositive
+                ? (trees >= 1 ? "trees saved" : "tree-months saved")
+                : (trees >= 1 ? "trees worth emitted" : "tree-months of carbon"),
             description: isPositive
                 ? `You've planted the equivalent of ${trees >= 1 ? trees.toFixed(1) + ' trees' : (trees * 12).toFixed(0) + ' tree-months'}!`
                 : `This equals ${trees >= 1 ? trees.toFixed(1) + ' trees\' worth' : (trees * 12).toFixed(0) + ' tree-months'} of emissions`
@@ -40,9 +42,9 @@ export function getImpactEquivalences(carbonKg: number): ImpactEquivalence[] {
     const carKm = absCarbon / CARBON_PER_KM_CAR;
     if (carKm >= 1) {
         equivalences.push({
-            icon: "🚗",
+            icon: isPositive ? "🚗✅" : "🚗💨",
             value: carKm.toFixed(0),
-            label: "km NOT driven",
+            label: isPositive ? "km NOT driven" : "km driven equivalent",
             description: isPositive
                 ? `Same as keeping a car parked for ${carKm.toFixed(0)} km!`
                 : `Same as driving ${carKm.toFixed(0)} km by car`
@@ -53,9 +55,9 @@ export function getImpactEquivalences(carbonKg: number): ImpactEquivalence[] {
     const burgers = absCarbon / CARBON_PER_BURGER;
     if (burgers >= 1 && absCarbon < 50) {
         equivalences.push({
-            icon: "🍔",
+            icon: isPositive ? "🥗" : "🍔",
             value: burgers.toFixed(0),
-            label: "burgers saved",
+            label: isPositive ? "burgers skipped" : "burgers equivalent",
             description: isPositive
                 ? `Equivalent to skipping ${burgers.toFixed(0)} beef burgers!`
                 : `Same carbon as ${burgers.toFixed(0)} beef burgers`
@@ -68,7 +70,7 @@ export function getImpactEquivalences(carbonKg: number): ImpactEquivalence[] {
         equivalences.push({
             icon: "📱",
             value: charges.toFixed(0),
-            label: "phone charges",
+            label: isPositive ? "charges saved" : "phone charges",
             description: isPositive
                 ? `Like ${charges.toFixed(0)} phone charges saved!`
                 : `Same as charging your phone ${charges.toFixed(0)} times`
@@ -79,9 +81,9 @@ export function getImpactEquivalences(carbonKg: number): ImpactEquivalence[] {
     const bottles = absCarbon / CARBON_PER_PLASTIC_BOTTLE;
     if (bottles >= 5) {
         equivalences.push({
-            icon: "🧴",
+            icon: isPositive ? "♻️" : "🧴",
             value: bottles.toFixed(0),
-            label: "plastic bottles",
+            label: isPositive ? "bottles avoided" : "bottles footprint",
             description: isPositive
                 ? `Equal to ${bottles.toFixed(0)} plastic bottles avoided!`
                 : `Same footprint as ${bottles.toFixed(0)} plastic bottles`
@@ -92,9 +94,11 @@ export function getImpactEquivalences(carbonKg: number): ImpactEquivalence[] {
     const flightHours = absCarbon / CARBON_PER_FLIGHT_HOUR;
     if (flightHours >= 0.5) {
         equivalences.push({
-            icon: "✈️",
+            icon: isPositive ? "✈️❌" : "✈️",
             value: flightHours >= 1 ? flightHours.toFixed(1) : (flightHours * 60).toFixed(0),
-            label: flightHours >= 1 ? "flight hours" : "flight minutes",
+            label: isPositive
+                ? (flightHours >= 1 ? "flight hours skipped" : "flight mins skipped")
+                : (flightHours >= 1 ? "flight hours" : "flight minutes"),
             description: isPositive
                 ? `Like skipping ${flightHours >= 1 ? flightHours.toFixed(1) + ' hours' : (flightHours * 60).toFixed(0) + ' mins'} of flying!`
                 : `Equivalent to ${flightHours >= 1 ? flightHours.toFixed(1) + ' hours' : (flightHours * 60).toFixed(0) + ' mins'} of flight`
