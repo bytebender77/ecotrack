@@ -34,7 +34,15 @@ export default function ChallengeList() {
         try {
             const res = await fetch('/api/challenges');
             const data = await res.json();
-            setChallenges(data);
+
+            // Handle new API response structure
+            if (data.challenges) {
+                setChallenges(data.challenges);
+                setJoinedChallenges(new Set(data.joinedChallengeIds || []));
+            } else {
+                // Fallback for old response structure
+                setChallenges(data);
+            }
         } catch (error) {
             console.error("Failed to fetch challenges", error);
         } finally {
