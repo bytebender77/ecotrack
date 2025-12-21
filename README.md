@@ -223,12 +223,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📧 Contact
-
-**Kunal Kumar Gupta** - [kunal21kumargupta@gmail.com](mailto:kunal21kumargupta@gmail.com)
-
-Project Link: [https://github.com/YOUR-USERNAME/ecotrack](https://github.com/YOUR-USERNAME/ecotrack)
-
----
 
 **🌱 Start tracking your carbon footprint today and make a positive impact on the planet!**
