@@ -12,13 +12,10 @@ export async function GET() {
 
         const user = await db.user.findUnique({
             where: { id: session.id as string },
-            select: {
-                carbonEmitted: true,
-                carbonAvoided: true,
-                ecoScore: true,
+            include: {
                 activities: true
             }
-        });
+        }) as any;
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
