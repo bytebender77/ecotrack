@@ -194,11 +194,9 @@ export default function AQIMap() {
                             {AQI_LEVELS.map((level) => (
                                 <div key={level.label} className="flex items-start gap-2">
                                     <div
-                                        className="w-4 h-4 rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-[10px]"
+                                        className="w-4 h-4 rounded-full flex-shrink-0 mt-0.5"
                                         style={{ backgroundColor: level.color }}
-                                    >
-                                        {level.emoji}
-                                    </div>
+                                    />
                                     <div className="flex-1 min-w-0">
                                         <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
                                             {level.emoji} {level.min}-{level.max} : {level.label}
