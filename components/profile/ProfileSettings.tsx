@@ -100,6 +100,43 @@ export default function ProfileSettings() {
         }
     };
 
+    const handleResetStats = async () => {
+        if (confirmText !== "RESET") {
+            toast({
+                title: "Confirmation Failed",
+                description: "Please type 'RESET' to confirm.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        setResetting(true);
+        try {
+            const res = await fetch('/api/user/reset', {
+                method: 'POST',
+            });
+
+            if (res.ok) {
+                toast({
+                    title: "Stats Reset 🔄",
+                    description: "Your eco stats have been reset to zero.",
+                });
+                setConfirmText("");
+                if (refreshUser) refreshUser();
+            } else {
+                throw new Error('Failed to reset stats');
+            }
+        } catch (error) {
+            toast({
+                title: "Reset Failed",
+                description: "Could not reset your stats.",
+                variant: "destructive"
+            });
+        } finally {
+            setResetting(false);
+        }
+    };
+
     if (!user) {
         return <div className="text-center py-12 text-muted-foreground">Please log in to view your profile.</div>;
     }
