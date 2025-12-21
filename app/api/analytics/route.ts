@@ -12,7 +12,10 @@ export async function GET() {
 
         const user = await db.user.findUnique({
             where: { id: session.id as string },
-            include: {
+            select: {
+                carbonEmitted: true,
+                carbonAvoided: true,
+                ecoScore: true,
                 activities: true
             }
         });
