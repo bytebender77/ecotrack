@@ -62,9 +62,10 @@ export async function POST(req: NextRequest) {
 
         // Calculate dynamic points based on environmental impact
         // Simple Formula: 1 kg CO₂e = 2 EcoPoints
-        // Emissions (positive carbon) → negative points
-        // Avoidance (negative carbon) → positive points
-        const calculatedPoints = Math.round(parseFloat(carbonImpact) * 2);
+        // Avoided carbon (negative) → POSITIVE points (reward)
+        // Emitted carbon (positive) → NEGATIVE points (penalty)
+        // We negate because: avoiding -20kg carbon = +40 pts reward
+        const calculatedPoints = Math.round(-parseFloat(carbonImpact) * 2);
 
         // Create Activity with calculated points
         const activity = await db.activity.create({
