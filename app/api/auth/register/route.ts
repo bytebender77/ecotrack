@@ -15,13 +15,21 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { name, email, password } = registerSchema.parse(body);
 
-        const existingUser = await db.user.findUnique({
-            where: { email },
+        // Case-insensitive email check
+        const normalizedEmail = email.toLowerCase().trim();
+
+        const existingUser = await db.user.findFirst({
+            where: {
+                email: {
+                    equals: normalizedEmail,
+                    mode: 'insensitive'
+                }
+            },
         });
 
         if (existingUser) {
             return NextResponse.json(
-                { message: 'User already exists' },
+                { message: 'An account with this email already exists. Please login instead.' },
                 { status: 400 }
             );
         }
@@ -30,8 +38,8 @@ export async function POST(req: NextRequest) {
 
         const user = await db.user.create({
             data: {
-                name,
-                email,
+                name: name.trim(),
+                email: normalizedEmail,
                 password: hashedPassword,
             },
         });
