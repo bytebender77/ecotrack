@@ -5,6 +5,7 @@ import ChallengeCard from "./ChallengeCard";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
+import confetti from 'canvas-confetti';
 
 interface Challenge {
     id: string;
@@ -20,7 +21,7 @@ interface Challenge {
 }
 
 export default function ChallengeList() {
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
     const { toast } = useToast();
     const [challenges, setChallenges] = useState<Challenge[]>([]);
     const [loading, setLoading] = useState(true);
@@ -94,6 +95,55 @@ export default function ChallengeList() {
         }
     };
 
+    const handleClaimReward = async (challengeId: string) => {
+        try {
+            const res = await fetch('/api/challenges/claim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ challengeId })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+
+                // Update participation data to mark as completed
+                setParticipationData(prev => ({
+                    ...prev,
+                    [challengeId]: { ...prev[challengeId], completed: true }
+                }));
+
+                // Fire confetti!
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                toast({
+                    title: "🎉 Reward Claimed!",
+                    description: `You earned ${data.reward} Eco Points! Keep up the great work!`,
+                });
+
+                // Refresh user data to update points
+                if (refreshUser) refreshUser();
+            } else {
+                const error = await res.json();
+                toast({
+                    title: "Claim Failed",
+                    description: error.message || "Something went wrong",
+                    variant: "destructive"
+                });
+            }
+        } catch (error) {
+            console.error("Claim error:", error);
+            toast({
+                title: "Error",
+                description: "Failed to claim reward",
+                variant: "destructive"
+            });
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex h-[400px] items-center justify-center">
@@ -120,8 +170,11 @@ export default function ChallengeList() {
                     onJoin={handleJoin}
                     joined={!!participationData[challenge.id]}
                     progress={participationData[challenge.id]?.progress || 0}
+                    completed={participationData[challenge.id]?.completed || false}
+                    onClaimReward={handleClaimReward}
                 />
             ))}
         </div>
     );
 }
+
