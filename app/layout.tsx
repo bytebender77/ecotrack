@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
+import MusicPlayer from "@/components/common/MusicPlayer";
+import SnowfallEffect from "@/components/common/SnowfallEffect";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,17 +24,19 @@ export default function RootLayout({
             <body className={inter.className}>
                 <ThemeProvider
                     attribute="class"
-                    defaultTheme="light"
+                    defaultTheme="dark"
                     enableSystem={false}
-                    forcedTheme="light"
                     disableTransitionOnChange
                 >
                     <AuthProvider>
+                        <SnowfallEffect />
                         {children}
                         <Toaster />
+                        <MusicPlayer />
                     </AuthProvider>
                 </ThemeProvider>
             </body>
         </html>
     );
 }
+
