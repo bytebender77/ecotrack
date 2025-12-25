@@ -12,7 +12,7 @@ export default function MusicPlayer() {
         // Initialize audio element
         audioRef.current = new Audio("/music/last-christmas.mp3");
         audioRef.current.loop = true;
-        audioRef.current.volume = 0.7;
+        audioRef.current.volume = 0.3;
 
         return () => {
             if (audioRef.current) {
