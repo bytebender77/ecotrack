@@ -10,9 +10,9 @@ export default function MusicPlayer() {
 
     useEffect(() => {
         // Initialize audio element
-        audioRef.current = new Audio("/music/Wham_ - Last Christmas (Lyrics) [KhqNTjbQ71A].mp3");
+        audioRef.current = new Audio("/music/last-christmas.mp3");
         audioRef.current.loop = true;
-        audioRef.current.volume = 0.3;
+        audioRef.current.volume = 0.7;
 
         return () => {
             if (audioRef.current) {
